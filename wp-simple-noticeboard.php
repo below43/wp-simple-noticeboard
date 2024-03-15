@@ -85,11 +85,11 @@ function display_notice_meta_box($notice)
 			<td><input type="text" size="80" name="notice_url" id="notice_url" value="<?php echo $url; ?>" /></td>
 		</tr>
 		<tr>
-			<td style="width: 100%">Date From</td>
+			<td style="width: 100%">Notice Display Date From</td>
 			<td><input type="date" name="notice_date_from" id="notice_date_from" value="<?php echo $date_from; ?>" /></td>
 		</tr>
 		<tr>
-			<td style="width: 100%">Date To</td>
+			<td style="width: 100%">Notice Display Date To</td>
 			<td><input type="date" name="notice_date_to" id="notice_date_to" value="<?php echo $date_to; ?>" /></td>
 		</tr>
 	</table>
