@@ -19,6 +19,21 @@ After creating this file, WordPress should use it to display your 'notices' cust
 
 Note that category.php is generic across an entire category, so if you have other custom post types, you'll need to edit the if statement.
 
+
+### Shortcode
+
+You can use the `[display_noticeboard_list]` shortcode to display a specific vacancy item. The shortcode accepts the following attributes:
+
+- `category`: The category you wish to filter on (optional)
+
+Example usage:
+
+```markdown
+[display_noticeboard_list category="notices"]
+```
+
+
+
 ## Changelog
 
 ### 1.0
