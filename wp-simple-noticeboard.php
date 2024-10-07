@@ -35,7 +35,7 @@ function create_notice_post_type()
 		'can_export' => true,
 		'has_archive' => true,
 		'exclude_from_search' => true,
-		'publicly_queryable' => false,
+		'publicly_queryable' => true,
 		'capability_type' => 'post',
 	);
 	register_post_type(
@@ -162,21 +162,34 @@ add_shortcode('display_noticeboard_item', 'display_noticeboard_func');
 
 function display_noticeboard_func($atts)
 {
-	$atts = shortcode_atts(array('id' => ''), $atts, 'display_noticeboard');
-	$notice_id = $atts['id'];
+	$notice_id = get_the_ID();
 	$notice = get_post($notice_id);
 	$url = get_post_meta($notice_id, 'url', true);
 	$date_from = get_post_meta($notice_id, 'date_from', true);
 	$date_to = get_post_meta($notice_id, 'date_to', true);
 	$notice_text = get_post_meta($notice_id, 'notice_text', true);
-	$thumbnail = get_the_post_thumbnail($notice_id);
+
+
+	//get the 200 wide, x high version of the thumbnail
+	$thumbnail = get_the_post_thumbnail($notice_id, array(200, 200));
+
+	// Convert the dates to Unix timestamps
+	$date_from_time = strtotime($date_from);
+	$date_to_time = strtotime($date_to);
+	$current_date = date('Y-m-d');
+	$current_date_time = strtotime($current_date);
+
+	// Skip the post if the current date is not within the date range
+	if ($current_date_time < $date_from_time || $current_date_time > $date_to_time) {
+		wp_redirect(home_url());
+		exit;
+	}
+
 	$output = "<h2>{$notice->post_title}</h2>
                {$thumbnail}
-               <p>{$notice_text}</p>
-               <p>Date From: {$date_from}</p>
-               <p>Date To: {$date_to}</p>";
+               <p>{$notice_text}</p>";
 	if (!empty($url)) {
-		$output .= "<a href='{$url}' target='_blank'>Open External URL</a>";
+		$output .= "<p>More information: <a href='{$url}' target='_blank'>{$url}</a>";
 	}
 	return $output;
 }
@@ -236,36 +249,36 @@ function display_noticeboard_list_func($atts)
 			$notice_id = get_the_ID();
 			$notice_text = get_post_meta($notice_id, 'notice_text', true);
 			$notice_text = wp_trim_words($notice_text, 40);
-			$thumbnail = get_the_post_thumbnail($notice_id);
+			
+			$thumbnail = get_the_post_thumbnail($notice_id, array(300, 225)); 
 			$categories = get_the_category_list(', ');
 
 			$date_from = get_post_meta($notice_id, 'date_from', true);
 			$date_to = get_post_meta($notice_id, 'date_to', true);
 			$current_date = date('Y-m-d');
-		
+
 			// Convert the dates to Unix timestamps
 			$date_from = strtotime($date_from);
 			$date_to = strtotime($date_to);
 			$current_date = strtotime($current_date);
-			
+
 			// Skip the post if the current date is not within the date range
 			if ($current_date < $date_from || $current_date > $date_to) {
-				$dodgy = 'true';
+				continue;
 			}
 
-			//<a href='" . get_permalink() . "'>View More</a>
-
-			$url = get_post_meta($notice_id, 'url', true);
-			if ($url) {
-				$notice_text .= "</p><p class=\"view-more-link\"><a href='{$url}' target='_blank'>View more</a>";
-			}
+			$title= "<a style=\"text-decoration:none\" href='" . get_permalink() . "'>" . get_the_title() . "</a>";
+	
 			$output .= "<li>
-                        {$thumbnail}
-                        <h2>". get_the_title() . "</h2>
-                        <p>{$notice_text}</p>
-                        </li>";
-
+							<center>{$thumbnail}</center>
+							<h2>" . $title . "</h2>
+							<p>{$notice_text}</p>";
+			//view more link
+			$output .= "<p class=\"view-more-link\"><a href='" . get_permalink() . "'>View more</a></p>";
+			$output .= "</li>";
+		
 			$count++;
+			
 		}
 	}
 	if (!$count) {
