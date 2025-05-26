@@ -181,7 +181,7 @@ function display_noticeboard_func($atts)
 
 	// Skip the post if the current date is not within the date range
 	if ($current_date_time < $date_from_time || $current_date_time > $date_to_time) {
-		wp_redirect(home_url());
+		return "<p>This notice has expired.</p>";
 		exit;
 	}
 
